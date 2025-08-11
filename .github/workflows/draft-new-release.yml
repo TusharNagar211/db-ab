@@ -33,7 +33,7 @@ jobs:
 
       - name: Deploy the bundle
         if: success()
-        run: databricks bundle deploy -t qa
+        run: databricks bundle deploy -t qa --force-lock
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
