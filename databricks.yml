@@ -1,5 +1,9 @@
 bundle:
   name: dabs-gitflow
+  permissions:
+    - group_name: users
+      level: CAN_MANAG  
+  
 
 include:
   - resources/*.yml
