@@ -13,10 +13,10 @@ targets:
 
   qa:
     workspace:
-      host: <qa_workspace_url>
+      host: https://adb-1835204328586261.1.azuredatabricks.net
       root_path: /Shared/.bundle/${bundle.name}
     run_as:
-      service_principal_name: <qa_service_principal_id>
+      service_principal_name: ad193ac8-b7b1-4c07-b2d8-bf39bfb09104
 
   prod:
     mode: production
