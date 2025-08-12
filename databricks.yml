@@ -29,4 +29,3 @@ targets:
       root_path: /Shared/.bundle/${bundle.name}
     run_as:
       service_principal_name: 8b5d7907-a974-415e-abdc-f861fe4ef228
-
