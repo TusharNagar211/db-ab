@@ -71,7 +71,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest     
     name: "Deploy Databricks Assets to PROD from main branch"
-    environment: PROD
+    environment: QA
     
     steps:
       - name: Checkout code
