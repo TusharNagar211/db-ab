@@ -23,7 +23,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@3       
+        uses: actions/checkout@v3       
       
       - name: Install Databricks CLI
         if: success()
@@ -31,7 +31,7 @@ jobs:
 
       - name: Validate the bundle on QA
         if: success()
-        run: databricks bundle validate -t qa --force-lock
+        run: databricks bundle validate -t qa
         env:
 
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
