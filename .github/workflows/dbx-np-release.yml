@@ -1,14 +1,21 @@
 name: "dbx-np-release"
 
 on:
-  push:
-    branches:
-    - 'release/**'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        type: choice
+        options:
+        - MAJOR
+        - MINOR
+        description: 'Type of version you want to Release'
+        required: true
        
 
 jobs:
 
   deploy-databricks:
+    if: startsWith(github.ref, 'refs/heads/release')  
     runs-on: ubuntu-latest
 
     name: "Deploy Databricks Assets to QA from release branch"
