@@ -1,0 +1,40 @@
+name: "dbx-np-release"
+
+on:
+  push:
+    branches:
+    - 'release/**'
+       
+
+jobs:
+
+  deploy-databricks:
+    runs-on: ubuntu-latest
+
+    name: "Deploy Databricks Assets to QA from release branch"
+    environment: QA
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@4       
+      
+      - name: Install Databricks CLI
+        if: success()
+        uses: databricks/setup-cli@main
+
+      - name: Validate the bundle on QA
+        if: success()
+        run: databricks bundle validate -t qa --force-lock
+        env:
+
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+
+      - name: Deploy the bundle on QA
+        if: success()
+        run: databricks bundle deploy -t qa --force-lock
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
