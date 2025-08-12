@@ -101,7 +101,7 @@ jobs:
 
     name: "Deploy Databricks Assets to QA from release branch"
     environment: QA
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
