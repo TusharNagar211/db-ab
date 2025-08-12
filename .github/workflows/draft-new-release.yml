@@ -80,20 +80,20 @@ jobs:
           ref: release/${{ steps.increment_version.outputs.new_version }}
           fetch-depth: 0
 
-      # - name: Create pull request
-      #   uses: thomaseizinger/create-pull-request@1.0.0
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      #   with:
-      #     head: release/${{ steps.increment_version.outputs.new_version }}
-      #     base: main
-      #     title: Release version ${{ steps.increment_version.outputs.new_version }}
-      #     reviewers: ${{ github.actor }} 
-      #     body: |
-      #       Hi @${{ github.actor }}!
+      - name: Create pull request
+        uses: thomaseizinger/create-pull-request@1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          head: release/${{ steps.increment_version.outputs.new_version }}
+          base: main
+          title: Release version ${{ steps.increment_version.outputs.new_version }}
+          reviewers: ${{ github.actor }} 
+          body: |
+            Hi @${{ github.actor }}!
 
-      #       This PR was created in response to a manual trigger of the release workflow here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-      #       Merging this PR will create a GitHub release and upload any assets that are created as part of the release build.
+            This PR was created in response to a manual trigger of the release workflow here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+            Merging this PR will create a GitHub release and upload any assets that are created as part of the release build.
 
 
   # deploy-databricks:
