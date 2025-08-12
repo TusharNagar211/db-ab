@@ -57,9 +57,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          head: release/${{ steps.increment_version.outputs.new_version }}
+          head: ${{ github.event.inputs.branch_name }}
           base: main
-          title: Release version ${{ steps.increment_version.outputs.new_version }}
+          title: Release version ${{ github.event.inputs.branch_name }}
           reviewers: ${{ github.actor }} 
           body: |
             Hi @${{ github.actor }}!
