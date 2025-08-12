@@ -1,4 +1,4 @@
-name: "Draft new release"
+name: "dbx-np-dab-create-release"
 
 on:
   workflow_dispatch:
@@ -16,33 +16,10 @@ permissions:
   pull-requests: write  # Grant write access to pull requests        
 
 jobs:
-  deploy-databricks:
-    name: "Deploy Databricks Assets to QA"
-    environment: QA
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: develop
-          fetch-depth: 0
-      
-      
-      - name: Install Databricks CLI
-        if: success()
-        uses: databricks/setup-cli@main
 
-      - name: Deploy the bundle
-        if: success()
-        run: databricks bundle deploy -t qa --force-lock
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
-  
-  
   draft-new-release:
-    name: "Draft a new release"
-    needs: deploy-databricks
+    name: "Create a new release pipeline"
+    # needs: deploy-databricks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -102,17 +79,56 @@ jobs:
           ref: release/${{ steps.increment_version.outputs.new_version }}
           fetch-depth: 0
 
-      - name: Create pull request
-        uses: thomaseizinger/create-pull-request@1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          head: release/${{ steps.increment_version.outputs.new_version }}
-          base: main
-          title: Release version ${{ steps.increment_version.outputs.new_version }}
-          reviewers: ${{ github.actor }} 
-          body: |
-            Hi @${{ github.actor }}!
+      # - name: Create pull request
+      #   uses: thomaseizinger/create-pull-request@1.0.0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      #   with:
+      #     head: release/${{ steps.increment_version.outputs.new_version }}
+      #     base: main
+      #     title: Release version ${{ steps.increment_version.outputs.new_version }}
+      #     reviewers: ${{ github.actor }} 
+      #     body: |
+      #       Hi @${{ github.actor }}!
 
-            This PR was created in response to a manual trigger of the release workflow here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-            Merging this PR will create a GitHub release and upload any assets that are created as part of the release build.
+      #       This PR was created in response to a manual trigger of the release workflow here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+      #       Merging this PR will create a GitHub release and upload any assets that are created as part of the release build.
+
+  deploy-databricks:
+    if: startsWith(github.ref, 'refs/heads/release/')
+    runs-on: ubuntu-latest
+    needs: draft-new-release
+
+    name: "Deploy Databricks Assets to QA from release branch"
+    environment: QA
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@4   
+      # - uses: actions/checkout@v4
+      #   with:
+      #     ref: develop
+      #     fetch-depth: 0
+      
+      
+      - name: Install Databricks CLI
+        if: success()
+        uses: databricks/setup-cli@main
+
+      - name: Validate the bundle on QA
+        if: success()
+        run: databricks bundle validate -t qa --force-lock
+        env:
+
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+
+      - name: Deploy the bundle on QA
+        if: success()
+        run: databricks bundle deploy -t qa --force-lock
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
