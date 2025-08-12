@@ -52,6 +52,22 @@ jobs:
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
 
+      - name: Create pull request
+        uses: thomaseizinger/create-pull-request@1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          head: release/${{ steps.increment_version.outputs.new_version }}
+          base: main
+          title: Release version ${{ steps.increment_version.outputs.new_version }}
+          reviewers: ${{ github.actor }} 
+          body: |
+            Hi @${{ github.actor }}!
+
+            This PR was created in response to a manual trigger of the release workflow here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+            Merging this PR will create a GitHub release and upload any assets that are created as part of the release build.
+
+
   deploy-databricks-to-prod:
     if: startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest     
@@ -81,3 +97,4 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          
