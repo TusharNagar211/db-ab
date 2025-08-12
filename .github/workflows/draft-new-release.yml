@@ -96,6 +96,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
+          fetch-depth: 0        
           ref: release/${{ steps.increment_version.outputs.new_version }}     
       
       - name: Install Databricks CLI
