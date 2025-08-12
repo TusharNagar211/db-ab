@@ -18,6 +18,7 @@ permissions:
 jobs:
 
   draft-new-release:
+    if: startsWith(github.ref, 'refs/heads/develop')
     name: "Create a new release pipeline"
     # needs: deploy-databricks
     runs-on: ubuntu-latest
