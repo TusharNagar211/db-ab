@@ -89,11 +89,11 @@ jobs:
       - name: Create Release
         uses: thomaseizinger/create-release@1.0.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # target_commitish: ${{ github.event.pull_request.merge_commit_sha }}
-          tag_name: ${{ env.NEW_VERSION }}
-          name: ${{ env.NEW_VERSION }}
+          tag_name: ${{ steps.increment_version.outputs.new_version }}
+          name: ${{ steps.increment_version.outputs.new_version }}
           draft: false
           prerelease: false
       
