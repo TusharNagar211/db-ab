@@ -85,6 +85,17 @@ jobs:
             echo "Running code on release branch"
             echo "Current branch is:"
             git branch
+
+      - name: Create Release
+        uses: thomaseizinger/create-release@1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          # target_commitish: ${{ github.event.pull_request.merge_commit_sha }}
+          tag_name: ${{ env.NEW_VERSION }}
+          name: ${{ env.NEW_VERSION }}
+          draft: false
+          prerelease: false
       
       # - name: Install Databricks CLI
       #   if: success()
@@ -151,3 +162,4 @@ jobs:
   #         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
   #         DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
   #         DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+  
