@@ -17,7 +17,14 @@ on:
         description: 'Branch to run the workflow on'
         required: true
         default: 'main' # Or your default branch
-        type: string        
+        type: string
+      release_type:
+        type: choice
+        options:
+        - MAJOR
+        - MINOR
+        description: 'Type of version you want to Release'
+        required: true              
        
 
 jobs:
