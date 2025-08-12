@@ -1,23 +1,30 @@
 name: "dbx-np-release"
 
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       release_type:
+#         type: choice
+#         options:
+#         - MAJOR
+#         - MINOR
+#         description: 'Type of version you want to Release'
+#         required: true
 on:
   workflow_dispatch:
     inputs:
-      release_type:
-        type: choice
-        options:
-        - MAJOR
-        - MINOR
-        description: 'Type of version you want to Release'
+      branch_name:
+        description: 'Branch to run the workflow on'
         required: true
+        default: 'main' # Or your default branch
+        type: string        
        
 
 jobs:
 
-  deploy-databricks:
-    if: startsWith(github.ref, 'refs/heads/release')  
+  deploy-databricks-to-qa:
+    if: startsWith(github.ref_name, 'release/')  
     runs-on: ubuntu-latest
-
     name: "Deploy Databricks Assets to QA from release branch"
     environment: QA
     
@@ -33,7 +40,6 @@ jobs:
         if: success()
         run: databricks bundle validate -t qa
         env:
-
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
@@ -41,6 +47,36 @@ jobs:
       - name: Deploy the bundle on QA
         if: success()
         run: databricks bundle deploy -t qa --force-lock
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+
+  deploy-databricks-to-prod:
+    if: startsWith(github.ref, 'refs/heads/main')
+    runs-on: ubuntu-latest     
+    name: "Deploy Databricks Assets to PROD from main branch"
+    environment: PROD
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3       
+      
+      - name: Install Databricks CLI
+        if: success()
+        uses: databricks/setup-cli@main
+
+      - name: Validate the bundle on QA
+        if: success()
+        run: databricks bundle validate -t qa
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+
+      - name: Deploy the bundle on PROD
+        if: success()
+        run: databricks bundle deploy -t prod --force-lock
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
