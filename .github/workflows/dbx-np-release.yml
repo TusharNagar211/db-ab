@@ -47,17 +47,23 @@ jobs:
         if: success()
         run: databricks bundle validate -t qa
         env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          # DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          # DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea        
 
       - name: Deploy the bundle on QA
         if: success()
         run: databricks bundle deploy -t qa --force-lock
         env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          # DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          # DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea  
 
       - name: Create pull request
         uses: thomaseizinger/create-pull-request@1.0.0
@@ -93,17 +99,23 @@ jobs:
         if: success()
         run: databricks bundle validate -t prod
         env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          # DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          # DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea  
 
       - name: Deploy the bundle on PROD
         if: success()
         run: databricks bundle deploy -t prod --force-lock
         env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          # DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_URL }}
+          # DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_SP_CLIENT_ID }}
+          # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
+          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea  
 
   release:
     needs: deploy-databricks-to-prod
