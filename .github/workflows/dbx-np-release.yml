@@ -45,7 +45,14 @@ jobs:
       
       - name: Install Databricks CLI
         if: success()
-        uses: databricks/setup-cli@main    
+        uses: databricks/setup-cli@main
+
+      - name: Authenticate with Azure and Databricks
+        id: oidc
+        run: |
+          echo "Requesting GitHub OIDC token..."
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL=${ACTIONS_ID_TOKEN_REQUEST_URL}" >> $GITHUB_ENV
+          echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN=${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" >> $GITHUB_ENV
 
       - name: Debug GitHub OIDC Token (optional)
         run: |
@@ -76,7 +83,9 @@ jobs:
           # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
           DATABRICKS_AUTH_TYPE: github-oidc
           DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
-          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea        
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea      
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}        
 
       - name: Deploy the bundle on QA
         if: success()
