@@ -51,31 +51,31 @@ jobs:
         if: success()
         uses: databricks/setup-cli@main
 
-      - name: Authenticate with Azure and Databricks
-        id: oidc
-        run: |
-          echo "Requesting GitHub OIDC token..."
-          echo "ACTIONS_ID_TOKEN_REQUEST_URL=${ACTIONS_ID_TOKEN_REQUEST_URL}" >> $GITHUB_ENV
-          echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN=${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" >> $GITHUB_ENV
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
+          tenant-id: c9531147-e2ec-4f5b-8f99-61d8cfbeda20
+          subscription-id: 4e15d7af-8326-4a31-aea3-5d5fb333d055
 
-      - name: Debug GitHub OIDC Token (optional)
-        run: |
-          echo "OIDC token URL: $ACTIONS_ID_TOKEN_REQUEST_URL"
-          echo "OIDC token request token: $ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+      # - name: Debug GitHub OIDC Token (optional)
+      #   run: |
+      #     echo "OIDC token URL: $ACTIONS_ID_TOKEN_REQUEST_URL"
+      #     echo "OIDC token request token: $ACTIONS_ID_TOKEN_REQUEST_TOKEN"
 
-      - name: Request GitHub OIDC token manually
-        id: get_token
-        run: |
-          echo "Fetching OIDC token..."
-          token=$(curl -sLS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://adb-4091704180100433.13.azuredatabricks.net/oidc/v1/token" | jq -r .value)
+      # - name: Request GitHub OIDC token manually
+      #   id: get_token
+      #   run: |
+      #     echo "Fetching OIDC token..."
+      #     token=$(curl -sLS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+      #       "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://adb-4091704180100433.13.azuredatabricks.net/oidc/v1/token" | jq -r .value)
 
-          if [[ -z "$token" || "$token" == "null" ]]; then
-            echo "No OIDC token received"
-            exit 1
-          fi
+      #     if [[ -z "$token" || "$token" == "null" ]]; then
+      #       echo "No OIDC token received"
+      #       exit 1
+      #     fi
 
-          echo "OIDC token received"
+      #     echo "OIDC token received"
 
 
       - name: Validate the bundle on QA
