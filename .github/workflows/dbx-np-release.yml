@@ -1,5 +1,9 @@
 name: "dbx-np-release"
 
+permissions:
+  id-token: write
+  contents: read
+
 # on:
 #   workflow_dispatch:
 #     inputs:
@@ -42,6 +46,11 @@ jobs:
       - name: Install Databricks CLI
         if: success()
         uses: databricks/setup-cli@main
+
+      - name: Debug GitHub OIDC Token (optional)
+        run: |
+          echo "OIDC token URL: $ACTIONS_ID_TOKEN_REQUEST_URL"
+          echo "OIDC token request token: $ACTIONS_ID_TOKEN_REQUEST_TOKEN"
 
       - name: Validate the bundle on QA
         if: success()
