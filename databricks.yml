@@ -13,11 +13,11 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://dbc-4af55c05-d594.cloud.databricks.com
+      host: https://adb-4091704180100433.13.azuredatabricks.net/
 
   qa:
     workspace:
-      host: https://dbc-4af55c05-d594.cloud.databricks.com/
+      host: https://adb-4091704180100433.13.azuredatabricks.net/
       root_path: /Shared/.bundle/${bundle.name}
     run_as:
       service_principal_name: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
@@ -25,7 +25,7 @@ targets:
   prod:
     mode: production
     workspace:
-      host: https://dbc-4af55c05-d594.cloud.databricks.com
+      host: https://adb-4091704180100433.13.azuredatabricks.net/
       root_path: /Shared/.bundle/${bundle.name}
     run_as:
       service_principal_name: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
