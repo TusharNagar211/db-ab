@@ -38,6 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     name: "Deploy Databricks Assets to QA from release branch"
     environment: QA
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+      DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
     
     steps:
       - name: Checkout code
