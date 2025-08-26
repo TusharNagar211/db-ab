@@ -45,15 +45,7 @@ jobs:
       
       - name: Install Databricks CLI
         if: success()
-        uses: databricks/setup-cli@main
-
-      - name: Authenticate with Databricks via GitHub OIDC
-        run: |
-          databricks auth login --auth-type github-oidc --host https://adb-4091704180100433.13.azuredatabricks.net/
-        env:
-          DATABRICKS_AUTH_TYPE: github-oidc
-          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
-          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea       
+        uses: databricks/setup-cli@main    
 
       - name: Debug GitHub OIDC Token (optional)
         run: |
