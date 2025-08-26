@@ -47,11 +47,19 @@ jobs:
         if: success()
         uses: databricks/setup-cli@main
 
+      - name: Authenticate with Databricks via GitHub OIDC
+        run: |
+          databricks auth login --auth-type github-oidc --host https://adb-4091704180100433.13.azuredatabricks.net/
+        env:
+          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea       
+
       - name: Debug GitHub OIDC Token (optional)
         run: |
           echo "OIDC token URL: $ACTIONS_ID_TOKEN_REQUEST_URL"
           echo "OIDC token request token: $ACTIONS_ID_TOKEN_REQUEST_TOKEN"
-          
+
       - name: Request GitHub OIDC token manually
         id: get_token
         run: |
@@ -60,11 +68,11 @@ jobs:
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://adb-4091704180100433.13.azuredatabricks.net/oidc/v1/token" | jq -r .value)
 
           if [[ -z "$token" || "$token" == "null" ]]; then
-            echo "❌ No OIDC token received"
+            echo "No OIDC token received"
             exit 1
           fi
 
-          echo "✅ OIDC token received"
+          echo "OIDC token received"
 
 
       - name: Validate the bundle on QA
