@@ -1,8 +1,11 @@
 bundle:
   name: dabs-gitflow
+  # permissions:
+  #   - group_name: users
+  #     level: CAN_MANAG
   permissions:
-    - group_name: users
-      level: CAN_MANAG  
+    id-token: write
+    contents: read      
   
 
 include:
