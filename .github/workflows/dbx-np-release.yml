@@ -51,12 +51,12 @@ jobs:
         if: success()
         uses: databricks/setup-cli@main
 
-      - name: Azure Login (OIDC)
-        uses: azure/login@v2
-        with:
-          client-id: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
-          tenant-id: c9531147-e2ec-4f5b-8f99-61d8cfbeda20
-          subscription-id: 4e15d7af-8326-4a31-aea3-5d5fb333d055
+      # - name: Azure Login (OIDC)
+      #   uses: azure/login@v2
+      #   with:
+      #     client-id: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
+      #     tenant-id: c9531147-e2ec-4f5b-8f99-61d8cfbeda20
+      #     subscription-id: 4e15d7af-8326-4a31-aea3-5d5fb333d055
 
       # - name: Debug GitHub OIDC Token (optional)
       #   run: |
