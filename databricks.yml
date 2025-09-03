@@ -13,10 +13,11 @@ include:
 
 targets:
   dev:
-    mode: development
+    #mode: development
     default: true
     workspace:
       host: https://adb-4091704180100433.13.azuredatabricks.net/
+      root_path: /Shared/Notebook Code/0_Init    
 
   qa:
     workspace:
