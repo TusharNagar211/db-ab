@@ -1,13 +1,22 @@
 resources:
   jobs:
-    sample_wf_1:
-      name: sample_wf_1
+    create_catalog_table:
+      name: Create Bronze Catalog and Table
 
       tasks:
         - task_key: task-1
           notebook_task:
-            notebook_path: ../src/notebook_1.py
+            notebook_path: ../src/Notebook Code/main_notebook.ipynb
 
+    run_sql:
+      name: Run SQL 
+
+      tasks:
+        - task_key: task-sql
+          sql_task:
+            file:
+              path: ../src/Notebook Code/1_Test/test.sql
+            warehouse_id: 1930e504b6625f33            
 
 # resources:
 #   grants:

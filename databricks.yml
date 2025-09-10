@@ -17,7 +17,13 @@ targets:
     default: true
     workspace:
       host: https://adb-4091704180100433.13.azuredatabricks.net/
-      root_path: /Shared/Notebook Code/0_Init    
+      root_path: /Shared/Notebook Code/0_Init
+    sync:
+     path:
+      - .src/Notebook Code/0_init/*.ipynb
+    exclude:
+     path:
+      - ../.github/*       
 
   qa:
     workspace:
