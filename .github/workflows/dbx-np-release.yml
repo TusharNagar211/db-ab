@@ -1,5 +1,6 @@
 name: "dbx-np-release"
 
+
 # on:
 #   workflow_dispatch:
 #     inputs:
@@ -11,29 +12,78 @@ name: "dbx-np-release"
 #         description: 'Type of version you want to Release'
 #         required: true
 on:
-  workflow_dispatch:
-    inputs:
-      branch_name:
-        description: 'Branch to run the workflow on'
-        required: true
-        default: 'main' # Or your default branch
-        type: string
-      release_type:
-        type: choice
-        options:
-        - MAJOR
-        - MINOR
-        description: 'Type of version you want to Release'
-        required: true              
-       
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/**'
+
+  # workflow_dispatch:
+  #   inputs:
+  #     branch_name:
+  #       description: 'Branch to run the workflow on'
+  #       required: true
+  #       default: 'main' # Or your default branch
+  #       type: string
+  #     release_type:
+  #       type: choice
+  #       options:
+  #       - MAJOR
+  #       - MINOR
+  #       description: 'Type of version you want to Release'
+  #       required: true              
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
+  deploy-databricks-to-dev:
+    if: startsWith(github.ref_name, 'develop')  
+    runs-on: ubuntu-latest
+    name: "Deploy Databricks Assets to DEV from develop branch"
+    environment: DEV
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+      DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3       
+      
+      - name: Install Databricks CLI
+        if: success()
+        uses: databricks/setup-cli@main
+
+
+      - name: Validate the bundle on DEV
+        if: success()
+        run: databricks bundle validate -t dev
+        env:
+          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea      
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}        
+
+      - name: Deploy the bundle on DEV
+        if: success()
+        run: databricks bundle deploy -t dev --force-lock
+        env:
+          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea  
 
   deploy-databricks-to-qa:
     if: startsWith(github.ref_name, 'release/')  
     runs-on: ubuntu-latest
     name: "Deploy Databricks Assets to QA from release branch"
     environment: QA
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
+      DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
     
     steps:
       - name: Checkout code
@@ -52,7 +102,9 @@ jobs:
           # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SP_SECRET }}
           DATABRICKS_AUTH_TYPE: github-oidc
           DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
-          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea        
+          DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea      
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}        
 
       - name: Deploy the bundle on QA
         if: success()
@@ -65,20 +117,20 @@ jobs:
           DATABRICKS_HOST: https://adb-4091704180100433.13.azuredatabricks.net/
           DATABRICKS_CLIENT_ID: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea  
 
-      - name: Create pull request
-        uses: thomaseizinger/create-pull-request@1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          head: ${{ github.event.inputs.branch_name }}
-          base: main
-          title: Release version ${{ github.event.inputs.branch_name }}
-          reviewers: ${{ github.actor }} 
-          body: |
-            Hi @${{ github.actor }}!
+      # - name: Create pull request
+      #   uses: thomaseizinger/create-pull-request@1.0.0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     head: ${{ github.event.inputs.branch_name }}
+      #     base: main
+      #     title: Release version ${{ github.event.inputs.branch_name }}
+      #     reviewers: ${{ github.actor }} 
+      #     body: |
+      #       Hi @${{ github.actor }}!
 
-            This PR was created in response to a manual trigger of the release workflow here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-            Merging this PR will create a GitHub release and upload any assets that are created as part of the release build.
+      #       This PR was created in response to a manual trigger of the release workflow here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+      #       Merging this PR will create a GitHub release and upload any assets that are created as part of the release build.
 
 
   deploy-databricks-to-prod:
