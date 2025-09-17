@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/TusharNagar211/db-ab/compare/v1.1.0...v1.2.0) (2025-09-17)
+
+
+### Features
+
+* test again ([0c5e179](https://github.com/TusharNagar211/db-ab/commit/0c5e17910cf754102a40b1b8d1c20f089fe620af))
+
 # [1.1.0](https://github.com/TusharNagar211/db-ab/compare/v1.0.0...v1.1.0) (2025-09-17)
 
 
