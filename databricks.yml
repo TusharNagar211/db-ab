@@ -1,8 +1,11 @@
 bundle:
   name: dabs-gitflow
+  # permissions:
+  #   - group_name: users
+  #     level: CAN_MANAG
   permissions:
-    - group_name: users
-      level: CAN_MANAG  
+    id-token: write
+    contents: read      
   
 
 include:
@@ -10,17 +13,24 @@ include:
 
 targets:
   dev:
-    mode: development
+    #mode: development
     default: true
     workspace:
       host: https://adb-4091704180100433.13.azuredatabricks.net/
+      root_path: /Shared/Notebook Code/0_Init
+    sync:
+     path:
+      - .src/Notebook Code/0_init/*.ipynb
+    exclude:
+     path:
+      - ../.github/*       
 
   qa:
     workspace:
       host: https://adb-4091704180100433.13.azuredatabricks.net/
       root_path: /Shared/.bundle/${bundle.name}
     run_as:
-      service_principal_name: 8b5d7907-a974-415e-abdc-f861fe4ef228
+      service_principal_name: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea
 
   prod:
     mode: production
@@ -28,4 +38,4 @@ targets:
       host: https://adb-4091704180100433.13.azuredatabricks.net/
       root_path: /Shared/.bundle/${bundle.name}
     run_as:
-      service_principal_name: 8b5d7907-a974-415e-abdc-f861fe4ef228
+      service_principal_name: 8bd9e9cd-2910-4014-8321-94b1f9ce73ea

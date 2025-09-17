@@ -1,0 +1,55 @@
+resources:
+  jobs:
+    create_catalog_table:
+      name: Create Bronze Catalog and Table
+
+      tasks:
+        - task_key: task-1
+          notebook_task:
+            notebook_path: ../src/Notebook Code/main_notebook.ipynb
+
+    run_sql:
+      name: Run SQL 
+
+      tasks:
+        - task_key: task-sql
+          sql_task:
+            file:
+              path: ../src/Notebook Code/1_Test/test.sql
+            warehouse_id: 1930e504b6625f33            
+
+# resources:
+#   grants:
+#     my_catalog_permissions:
+#       depends_on: sample_wf_1
+#       permissions:
+#         - object_type: CATALOG
+#           object_name: bronze_tbd
+#           access_control:
+#             - user_name: "hemali.riaan@gmail.com"
+#               permission_level: USE_CATALOG, USE_SCHEMA, APPLY_TAG
+#             - group_name: "users"
+#               permission_level: MANAGE
+            # - object_type: SCHEMA
+            #   object_name: my_catalog.my_schema
+            #   access_control:
+            #     - service_principal_name: "my_service_principal"
+            #       permission_level: CREATE_TABLE  
+
+        # - task_key: task-2
+        #   depends_on:
+        #     - task_key: task-1
+        #   notebook_task:
+        #     notebook_path: ../src/notebook_2.py
+
+        # - task_key: task-3
+        #   depends_on:
+        #     - task_key: task-1
+        #   notebook_task:
+        #     notebook_path: ../src/notebook_3.py
+
+        # - task_key: task-4
+        #   depends_on:
+        #     - task_key: task-3
+        #   notebook_task:
+        #     notebook_path: ../src/notebook_4.py
