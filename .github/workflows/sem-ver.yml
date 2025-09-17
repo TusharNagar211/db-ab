@@ -3,7 +3,7 @@ name: 'Release through Sem Version'
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   semantic-release:
