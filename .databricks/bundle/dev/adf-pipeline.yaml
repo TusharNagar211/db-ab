@@ -1,0 +1,182 @@
+# trigger:
+#   branches:
+#     include:
+#       - adf_publish
+
+# pool:
+#   name: 'personallaptop'
+
+
+# stages:
+# - stage: GenerateArtifact
+#   displayName: Copy and package the code
+
+#   jobs:
+#   - job: Copy_Artifact_from_adf_publish
+#     displayName: Copy Artifact from adf_publish
+#     variables:
+#     - name: branchname
+#       value: $[ replace(variables['Build.SourceBranch'], 'refs/heads/', '') ]
+#     steps:
+#     # - script: |
+#     #     git checkout adf_publish
+#     #     mv dv-esrm-adf $(Build.ArtifactStagingDirectory)
+#     #     git checkout $(branchName)
+#     - checkout: self
+#       persistCredentials: true
+#     - powershell: |
+#         git fetch --all
+#         git checkout adf_publish
+#         Move-Item "dv-esrm-adf" "$env:PIPELINE_WORKSPACE" -Force
+#         git checkout "$(branchName)"
+
+#     - task: PublishPipelineArtifact@1
+#       displayName: Publish Artifact
+#       inputs:
+#         targetPath: $(Build.ArtifactStagingDirectory)
+#         artifactName: adf-artifacts-$(Build.BuildNumber)
+#         artifactType: pipeline
+
+
+# - stage: ADFDeployment
+#   displayName: Stage to deploy ADF templates
+#   jobs:
+#     - deployment: 'Prod_ADF_Deployment'
+#       workspace:
+#         clean: all
+#       environment: Prod
+#       strategy:
+#         runOnce:
+#           deploy:
+#             steps:
+#               - task: DownloadPipelineArtifact@2
+#                 inputs:
+#                   buildType: 'current'
+#                   project: ca110c52-13c6-42ea-9fec-6187e69e5c25
+#                   definition: 2
+#                   preferTriggeringPipeline: false
+#                   buildVersionToDownload: 'latest'
+#                   artifactName: adf-artifacts-$(Build.BuildNumber)
+#                   downloadpath: $(Pipeline.Workspace)
+
+#               - task: AzureKeyVault@2
+#                 inputs:
+#                   azureSubscription: 'dev-service-connection'
+#                   KeyVaultName: 'kvl-srmdemo'
+#                   secretsFilter: '*' 
+#                   runAsPreJob: false 
+
+#               - task: AzureResourceManagerTemplateDeployment@3
+#                 displayName: Deploy to PROD
+#                 inputs:
+#                   #deploymentScope: 'ResourceGroup'
+#                   azureResourceManagerConnection: 'dev-service-connection'
+#                   subscriptionId: 'fdf19e9e-bf33-4b34-9904-eec893483a5f'
+#                   #action: 'CreateOrUpdateResourceGroup'
+#                   resourceGroupName: 'datafactory-rg'
+#                   location: 'eastus'
+#                   #templateLocation: 'Linked artifact'
+#                   csmFile: $(Pipeline.Workspace)/dv-esrm-adf/ARMTemplateForFactory.json
+#                   csmParametersFile: $(Pipeline.Workspace)/dv-esrm-adf/ARMTemplateParametersForFactory.json
+#                   overrideParameters: '-factoryName $(data-factory-name) -AzureBlobStorage1_connectionString $(pr-storage-connection)'
+  
+
+trigger:
+  branches:
+    include:
+      - adf_publish
+
+pool:
+  name: 'personallaptop'  # Your Windows self-hosted agent
+
+stages:
+
+# -------------------------------
+# Stage 1: Generate Artifact
+# -------------------------------
+- stage: GenerateArtifact
+  displayName: Copy and Package the Code
+  jobs:
+    - job: Copy_Artifact_from_adf_publish
+      displayName: Copy Artifact from adf_publish
+      variables:
+        - name: branchname
+          value: $[ replace(variables['Build.SourceBranch'], 'refs/heads/', '') ]
+      steps:
+
+      # Checkout the repository and persist credentials for Git
+      - checkout: self
+        persistCredentials: true
+
+      # PowerShell: checkout adf_publish branch and copy dv-esrm-adf to pipeline workspace
+      - powershell: |
+          git fetch --all
+          git checkout adf_publish
+
+          # Define target folder in pipeline workspace
+          $targetFolder = Join-Path -Path $env:PIPELINE_WORKSPACE -ChildPath "dv-esrm-adf"
+
+          # Remove if folder already exists
+          if (Test-Path $targetFolder) { Remove-Item $targetFolder -Recurse -Force }
+
+          # Move the dv-esrm-adf folder to workspace
+          Move-Item -Path "dv-esrm-adf" -Destination $targetFolder -Force
+
+          git checkout "$(branchname)"
+        displayName: Copy artifact from adf_publish
+
+      # Publish the artifact
+      - task: PublishPipelineArtifact@1
+        displayName: Publish Artifact
+        inputs:
+          targetPath: $(Pipeline.Workspace)/dv-esrm-adf
+          artifactName: adf-artifacts-$(Build.BuildNumber)
+          artifactType: pipeline
+
+# -------------------------------
+# Stage 2: Deploy ADF Templates
+# -------------------------------
+- stage: ADFDeployment
+  displayName: Deploy ADF Templates
+  jobs:
+    - deployment: Prod_ADF_Deployment
+      environment: Prod
+      workspace:
+        clean: all
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+            # Download the published artifact directly into dv-esrm-adf folder
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                buildType: current
+                artifactName: adf-artifacts-$(Build.BuildNumber)
+                downloadPath: $(Pipeline.Workspace)/dv-esrm-adf
+
+            # Optional: Debug - verify the downloaded files
+            - powershell: |
+                Write-Host "Listing ARM template folder:"
+                dir "$(Pipeline.Workspace)/dv-esrm-adf"
+              displayName: Verify Artifact Files
+
+            # Download KeyVault secrets
+            - task: AzureKeyVault@2
+              inputs:
+                azureSubscription: 'dev-service-connection'
+                KeyVaultName: 'kvl-srmdemo'
+                secretsFilter: '*' 
+                runAsPreJob: false 
+
+            # Deploy ARM template
+            - task: AzureResourceManagerTemplateDeployment@3
+              displayName: Deploy to PROD
+              inputs:
+                azureResourceManagerConnection: 'dev-service-connection'
+                subscriptionId: 'fdf19e9e-bf33-4b34-9904-eec893483a5f'
+                resourceGroupName: 'datafactory-rg'
+                location: 'eastus'
+                csmFile: $(Pipeline.Workspace)/dv-esrm-adf/ARMTemplateForFactory.json
+                csmParametersFile: $(Pipeline.Workspace)/dv-esrm-adf/ARMTemplateParametersForFactory.json
+                overrideParameters: '-factoryName $(data-factory-name) -AzureBlobStorage1_connectionString $(pr-storage-connection)'
