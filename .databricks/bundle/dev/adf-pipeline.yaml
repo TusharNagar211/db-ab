@@ -133,6 +133,40 @@ stages:
           artifactName: adf-artifacts-$(Build.BuildNumber)
           artifactType: pipeline
 
+            - task: AzurePowerShell@5
+              displayName: Stop Triggers
+              inputs:
+                azureSubscription: 'dev-service-connection'
+                ScriptType: 'InlineScript'
+                Inline: 
+                  $triggersADF = Get-AzDataFactoryV2Trigger -DataFactoryName "pr-esrm-adf" -ResourceGroupName "datafactory-rg";
+                  $triggersADF | ForEach-Object { Stop-AzDataFactoryV2Trigger –ResourceGroupName "datafactory-rg" -DataFactoryName  "pr-esrm-adf" -Name $_.name -Force }
+                azurePowerShellVersion: 'LatestVersion'
+
+
+            # Deploy ARM template
+            - task: AzureResourceManagerTemplateDeployment@3
+              displayName: Deploy to PROD
+              inputs:
+                azureResourceManagerConnection: 'dev-service-connection'
+                subscriptionId: 'fdf19e9e-bf33-4b34-9904-eec893483a5f'
+                resourceGroupName: 'datafactory-rg'
+                location: 'eastus'
+                csmFile: $(Pipeline.Workspace)/dv-esrm-adf/ARMTemplateForFactory.json
+                csmParametersFile: $(Pipeline.Workspace)/dv-esrm-adf/ARMTemplateParametersForFactory.json
+                overrideParameters: '-factoryName $(data-factory-name) -AzureBlobStorage1_connectionString $(pr-storage-connection)'
+
+            - task: AzurePowerShell@5
+              displayName: Restart
+              inputs:
+                azureSubscription: 'dev-service-connection'
+                ScriptType: 'InlineScript'
+                Inline: 
+                  $triggersADF = Get-AzDataFactoryV2Trigger -DataFactoryName "pr-esrm-adf" -ResourceGroupName "datafactory-rg";
+                  $triggersADF | ForEach-Object { Start-AzDataFactoryV2Trigger -ResourceGroupName "datafactory-rg" -DataFactoryName "pr-esrm-adf" -Name $_.name -Force }
+                azurePowerShellVersion: 'LatestVersion'
+
+
 # -------------------------------
 # Stage 2: Deploy ADF Templates
 # -------------------------------
